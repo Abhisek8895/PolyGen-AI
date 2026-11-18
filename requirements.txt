@@ -3,3 +3,6 @@ fastapi
 uvicorn[standard]
 pytest
 httpx
+trimesh
+xatlas
+numpy
