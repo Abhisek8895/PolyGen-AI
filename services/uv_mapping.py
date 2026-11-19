@@ -1,6 +1,4 @@
-
 import trimesh
-import xatlas
 import numpy as np
 
 
@@ -19,24 +17,26 @@ def generate_uv_mapping(input_path: str, output_path: str):
     if len(vertices) == 0 or len(faces) == 0:
         raise ValueError("Mesh contains no geometry")
 
-    # Initialize UV atlas
-    atlas = xatlas.Atlas()
+    # Calculate planar UV projection using the two largest dimensions
+    extent = np.ptp(vertices, axis=0)
+    axes = np.argsort(extent)[-2:]
 
-    # Add mesh to atlas
-    atlas.add_mesh(vertices, faces)
+    uvs = vertices[:, axes].copy()
 
-    # Generate UV coordinates
-    atlas.generate()
+    # Normalize UV coordinates to 0–1
+    minimum = uvs.min(axis=0)
+    maximum = uvs.max(axis=0)
 
-    # Extract generated UV data
-    vmapping, indices, uvs = atlas[0]
+    size = maximum - minimum
+    size[size == 0] = 1.0
 
-    # Reconstruct mesh using UV mapping
-    mapped_vertices = vertices[vmapping]
+    uvs = (uvs - minimum) / size
+    uvs = uvs.astype(np.float32)
 
+    # Reconstruct mesh with UV coordinates
     uv_mesh = trimesh.Trimesh(
-        vertices=mapped_vertices,
-        faces=indices,
+        vertices=vertices,
+        faces=faces,
         process=False
     )
 
@@ -51,7 +51,7 @@ def generate_uv_mapping(input_path: str, output_path: str):
     return {
         "message": "UV mapping generated successfully",
         "output": output_path,
-        "vertices": len(mapped_vertices),
-        "faces": len(indices),
+        "vertices": len(vertices),
+        "faces": len(faces),
         "uv_coordinates": len(uvs)
     }
