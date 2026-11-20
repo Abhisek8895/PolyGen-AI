@@ -99,6 +99,24 @@ A functional text-to-3D asset generation application capable of:
 
 **Repository:** PolyGen
 
+
+
+## UV Mapping Module (In Progress)
+
+Started implementing the UV mapping service for 3D mesh processing.
+
+### Current Progress
+- Implemented mesh loading and geometry validation using Trimesh.
+- Added vertex and face extraction using NumPy.
+- Integrated xatlas for automatic UV atlas generation.
+- Investigating a native access violation occurring during UV parametrization on Windows.
+
+### Next Steps
+- Resolve the UV generation backend issue.
+- Generate and pack UV coordinates.
+- Export and validate UV-mapped 3D meshes.
+
+
 ---
 
 *This repository documents the development, implementation, testing, and integration of the PolyGen generative 3D asset pipeline.*
