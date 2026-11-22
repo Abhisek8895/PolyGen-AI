@@ -8,6 +8,7 @@ __pycache__/
 venv/
 .venv/
 env/
+uv_env/
 
 # Environment variables
 .env
@@ -33,3 +34,5 @@ Thumbs.db
 *.egg-info/
 dist/
 build/
+*.obj
+*.mtl
