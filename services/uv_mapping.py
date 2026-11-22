@@ -1,57 +1,124 @@
+# import trimesh
+# import numpy as np
+# import xatlas
+
+
+# def generate_uv_mapping(input_path: str, output_path: str):
+
+#     # Load the 3D mesh
+#     mesh = trimesh.load(input_path, force="mesh")
+
+#     if not isinstance(mesh, trimesh.Trimesh):
+#         raise ValueError("Invalid 3D mesh")
+
+#     vertices = np.asarray(mesh.vertices, dtype=np.float32)
+#     faces = np.asarray(mesh.faces, dtype=np.uint32)
+
+#     # Validate mesh geometry
+#     if len(vertices) == 0 or len(faces) == 0:
+#         raise ValueError("Mesh contains no geometry")
+
+#     # Initialize UV atlas
+#     atlas = xatlas.Atlas()
+#     atlas.add_mesh(vertices, faces)
+
+#     # Generate UV mapping
+#     atlas.generate()
+
+#     # Retrieve UV mapping data
+#     vmapping, indices, uvs = atlas[0]
+
+#     # Reconstruct mesh using atlas-generated vertices
+#     mapped_vertices = vertices[vmapping]
+#     mapped_faces = np.asarray(indices, dtype=np.uint32).reshape(-1, 3)
+
+#     # Create UV-mapped mesh
+#     uv_mesh = trimesh.Trimesh(
+#         vertices=mapped_vertices,
+#         faces=mapped_faces,
+#         process=False
+#     )
+
+#     # Attach UV coordinates
+#     uv_mesh.visual = trimesh.visual.TextureVisuals(
+#         uv=np.asarray(uvs, dtype=np.float32)
+#     )
+
+#     # Export UV-mapped mesh
+#     uv_mesh.export(output_path)
+
+#     return {
+#         "message": "UV mapping generated successfully",
+#         "output": output_path,
+#         "vertices": len(mapped_vertices),
+#         "faces": len(mapped_faces),
+#         "uv_coordinates": len(uvs)
+#     }
+
 import trimesh
 import numpy as np
+import xatlas
 
 
 def generate_uv_mapping(input_path: str, output_path: str):
 
-    # Load the 3D mesh
+    print("Step 1: Loading mesh...", flush=True)
     mesh = trimesh.load(input_path, force="mesh")
 
+    print("Step 2: Validating mesh...", flush=True)
     if not isinstance(mesh, trimesh.Trimesh):
         raise ValueError("Invalid 3D mesh")
 
     vertices = np.asarray(mesh.vertices, dtype=np.float32)
     faces = np.asarray(mesh.faces, dtype=np.uint32)
 
-    # Validate mesh geometry
     if len(vertices) == 0 or len(faces) == 0:
         raise ValueError("Mesh contains no geometry")
 
-    # Calculate planar UV projection using the two largest dimensions
-    extent = np.ptp(vertices, axis=0)
-    axes = np.argsort(extent)[-2:]
+    # Ensure arrays are contiguous
+    vertices = np.ascontiguousarray(vertices, dtype=np.float32)
+    faces = np.ascontiguousarray(faces, dtype=np.uint32)
 
-    uvs = vertices[:, axes].copy()
+    print("Vertices shape:", vertices.shape, flush=True)
+    print("Faces shape:", faces.shape, flush=True)
 
-    # Normalize UV coordinates to 0–1
-    minimum = uvs.min(axis=0)
-    maximum = uvs.max(axis=0)
+    print("Step 3: Starting UV parametrization...", flush=True)
 
-    size = maximum - minimum
-    size[size == 0] = 1.0
+    vmapping, indices, uvs = xatlas.parametrize(vertices, faces)
 
-    uvs = (uvs - minimum) / size
-    uvs = uvs.astype(np.float32)
+    print("Step 4: UV parametrization completed!", flush=True)
 
-    # Reconstruct mesh with UV coordinates
+    # Reconstruct mesh using generated vertex mapping
+    mapped_vertices = vertices[vmapping]
+    mapped_faces = np.asarray(indices, dtype=np.uint32).reshape(-1, 3)
+
+    print("Step 5: Reconstructing mesh...", flush=True)
+
     uv_mesh = trimesh.Trimesh(
-        vertices=vertices,
-        faces=faces,
+        vertices=mapped_vertices,
+        faces=mapped_faces,
         process=False
     )
 
-    # Attach UV coordinates
+    # Attach generated UV coordinates
     uv_mesh.visual = trimesh.visual.TextureVisuals(
-        uv=uvs
-    )
+    uv=np.asarray(uvs, dtype=np.float32),
+    material=trimesh.visual.material.SimpleMaterial()
+)
 
-    # Export the UV-mapped mesh
-    uv_mesh.export(output_path)
+    print("Step 6: Exporting mesh...", flush=True)
+
+    uv_mesh.export(
+    output_path,
+    include_texture=True
+)
+
+    print("Step 7: UV mapping completed!", flush=True)
 
     return {
         "message": "UV mapping generated successfully",
         "output": output_path,
-        "vertices": len(vertices),
-        "faces": len(faces),
+        "vertices": len(mapped_vertices),
+        "faces": len(mapped_faces),
         "uv_coordinates": len(uvs)
     }
