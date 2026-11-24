@@ -2,7 +2,7 @@
 
 PolyGen is an AI-powered text-to-3D asset generation system designed to simplify 3D asset creation for gaming, virtual reality (VR), and metaverse environments.
 
-The system aims to transform natural-language text prompts into optimized, textured 3D models through a multi-stage generative AI pipeline. It combines 3D generation models, AI-based texture synthesis, mesh optimization, and interactive 3D visualization.
+The system aims to transform natural-language text prompts into optimized, textured 3D models through a multi-stage generative AI pipeline. It combines 3D generation models, AI-based texture synthesis, mesh processing, and interactive 3D visualization.
 
 ## Project Objectives
 
@@ -36,7 +36,7 @@ The system aims to transform natural-language text prompts into optimized, textu
 | Conditioning | ControlNet |
 | Diffusion Integration | Hugging Face Diffusers |
 | Mesh Processing | Trimesh, Open3D |
-| UV Mapping | xatlas |
+| UV Mapping | xatlas, NumPy |
 | Mesh Decimation | Quadric Error Metrics (QEM) |
 | Backend | FastAPI |
 | Frontend | React / Streamlit (to be finalized) |
@@ -49,28 +49,53 @@ The system aims to transform natural-language text prompts into optimized, textu
 
 The project is planned over four weeks.
 
-### Week 1 – 3D Mesh Generation
-- Research and select a suitable 3D generation model.
-- Configure the Python and GPU environment.
-- Integrate the pretrained generation model.
-- Implement prompt processing and 3D inference.
-- Generate and export raw 3D meshes.
+### Week 1 – Backend Foundation
 
-### Week 2 – Texture Generation
+- Created and configured the GitHub repository with the `main` branch.
+- Set up the Python virtual environment and installed dependencies.
+- Initialized the FastAPI backend structure.
+- Implemented the root (`/`) and health-check (`/api/v1/health`) endpoints.
+- Configured Pytest and implemented automated API tests.
+- Successfully executed both API test cases.
+
+**Status: Completed**
+
+### Week 2 – UV Mapping and AI-Based Texturing
+
+**Automatic UV Mapping**
+
+- Implemented mesh loading and geometry validation using Trimesh.
+- Added vertex and face extraction using NumPy.
+- Integrated xatlas for automatic UV atlas generation.
+- Reconstructed meshes using generated vertex mappings and indices.
+- Attached generated UV coordinates to the processed mesh.
+- Implemented OBJ export with UV information.
+- Tested UV mapping with different mesh geometries, including cubes, spheres, and cylinders.
+- Verified exported OBJ files, UV coordinate shapes, and coordinate ranges.
+- Created automated UV mapping validation tests using Pytest.
+- Successfully passed all three UV mapping tests.
+
+**AI-Based Texturing (Upcoming)**
+
 - Integrate Stable Diffusion and ControlNet.
 - Generate geometry-guided textures.
-- Implement automatic UV unwrapping.
-- Apply generated textures to 3D meshes.
+- Apply generated textures to UV-mapped meshes.
 - Validate texture quality and mapping.
 
+**Status: UV Mapping Completed and Validated | AI-Based Texturing Pending**
+
 ### Week 3 – Mesh Optimization and PBR Materials
+
 - Inspect and clean generated meshes.
 - Implement QEM-based polygon decimation.
 - Optimize dense meshes for real-time rendering.
 - Generate and apply PBR material maps.
 - Validate optimized geometry and rendering quality.
 
+**Status: Pending**
+
 ### Week 4 – Integration and Export
+
 - Implement GLB/GLTF export.
 - Develop the PolyGen dashboard.
 - Integrate the interactive 3D viewer.
@@ -78,44 +103,56 @@ The project is planned over four weeks.
 - Integrate the complete generation pipeline.
 - Perform final testing and documentation.
 
-## Expected Output
+**Status: Pending**
 
-A functional text-to-3D asset generation application capable of:
+## Current Implementation
 
-- Accepting natural-language prompts.
-- Generating recognizable 3D geometry.
-- Applying AI-generated textures and materials.
-- Optimizing polygon counts.
-- Displaying assets interactively.
-- Exporting optimized 3D assets in GLB/GLTF format.
+### 1. FastAPI Backend
+
+The initial backend foundation has been implemented with:
+
+- FastAPI application initialization.
+- Root endpoint (`/`).
+- Health-check endpoint (`/api/v1/health`).
+- Automated API testing using Pytest.
+
+### 2. Automatic UV Mapping Module
+
+The UV mapping service has been implemented using Python, Trimesh, NumPy, and xatlas.
+
+The module provides the following functionality:
+
+- Loads 3D mesh files.
+- Validates mesh geometry.
+- Extracts vertices and faces.
+- Generates UV coordinates through xatlas.
+- Reconstructs the mesh using generated vertex mappings.
+- Attaches UV coordinates to the reconstructed mesh.
+- Exports the UV-mapped mesh in OBJ format.
+
+**Validation Results**
+
+| Test Mesh | Validation |
+|---|---|
+| Cube | Passed |
+| Sphere | Passed |
+| Cylinder | Passed |
+| Automated UV Tests | 3 Passed |
+
+The exported meshes were successfully loaded and checked for valid geometry, UV coordinate availability, finite values, and expected UV coordinate ranges.
 
 ## Project Status
 
-**Status:** Initial Research and Environment Setup
+- **Status:** Week 2 – UV Mapping Completed; AI-Based Texturing Next
+- **Development Duration:** 28 Days
+- **Project Type:** Individual Development
+- **Repository:** PolyGen
 
-**Development Duration:** 28 Days
+## Upcoming Development
 
-**Project Type:** Individual Development
+The immediate next objective is implementing AI-based texturing using Stable Diffusion and ControlNet.
 
-**Repository:** PolyGen
-
-
-
-## UV Mapping Module (In Progress)
-
-Started implementing the UV mapping service for 3D mesh processing.
-
-### Current Progress
-- Implemented mesh loading and geometry validation using Trimesh.
-- Added vertex and face extraction using NumPy.
-- Integrated xatlas for automatic UV atlas generation.
-- Investigating a native access violation occurring during UV parametrization on Windows.
-
-### Next Steps
-- Resolve the UV generation backend issue.
-- Generate and pack UV coordinates.
-- Export and validate UV-mapped 3D meshes.
-
+The goal is to generate suitable textures, apply them to UV-mapped 3D meshes, and export textured assets for further processing.
 
 ---
 
